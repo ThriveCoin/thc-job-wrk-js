@@ -1,0 +1,40 @@
+{
+  "name": "@thrivecoin/job-wrk",
+  "version": "1.0.0",
+  "description": "Generic job worker class",
+  "main": "index.js",
+  "scripts": {
+    "coverage": "nyc --reporter=html mocha",
+    "lint": "standard",
+    "format": "standard --fix",
+    "test": "npm run lint && npm run unit",
+    "unit": "NODE_ENV=test mocha ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThriveCoin/thc-job-wrk-js.git"
+  },
+  "keywords": [
+    "thc",
+    "job",
+    "worker",
+    "scheduler",
+    "task"
+  ],
+  "author": {
+    "name": "vigan.abd",
+    "email": "vigan@thrivecoin.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ThriveCoin/thc-job-wrk-js/issues"
+  },
+  "homepage": "https://github.com/ThriveCoin/thc-job-wrk-js#readme",
+  "devDependencies": {
+    "@bitfinex/lib-js-util-promise": "git+https://github.com/bitfinexcom/lib-js-util-promise.git",
+    "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
+    "sinon": "^12.0.1",
+    "standard": "^16.0.4"
+  }
+}
