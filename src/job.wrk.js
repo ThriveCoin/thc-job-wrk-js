@@ -14,7 +14,10 @@ class JobWrk {
 
   start () {
     this._loadState()
+
+    /** @type {Map<string, NodeJS.Timeout>} */
     this._jobs = new Map()
+    /** @type {Map<string, boolean>} */
     this._jobStates = new Map()
   }
 
@@ -47,6 +50,12 @@ class JobWrk {
     this.state = JSON.parse(fs.readFileSync(this._statePath, { encoding: 'utf-8' }))
   }
 
+  /**
+   * @param {string} key
+   * @param {() => Promise<void>} task
+   * @param {number} interval
+   * @param {boolean} [immediate]
+   */
   addJob (key, task, interval, immediate = false) {
     if (this._jobs.has(key)) return false
 
@@ -72,6 +81,9 @@ class JobWrk {
     return true
   }
 
+  /**
+   * @param {string} key
+   */
   stopJob (key) {
     if (!this._jobs.has(key)) return false
 
