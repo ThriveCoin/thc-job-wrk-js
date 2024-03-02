@@ -136,7 +136,13 @@ describe('JobWrk tests', () => {
       const key = 'my-job'
       const job = () => { }
       wrk.addJob(key, job, 300)
+      assert.strictEqual(wrk._jobs.has(key), true)
+      assert.strictEqual(wrk._jobStates.has(key), true)
+
       const res = wrk.stopJob(key)
+
+      assert.strictEqual(wrk._jobs.has(key), false)
+      assert.strictEqual(wrk._jobStates.has(key), false)
 
       assert.ok(res, true)
     })
@@ -161,11 +167,11 @@ describe('JobWrk tests', () => {
       const job = sinon.stub().callsFake(() => sleep(700))
       wrk.addJob(key, job, 300)
 
-      assert.strictEqual(wrk._jobStates.get(key), false)
+      assert.strictEqual(wrk._jobStates.get(key).running, false)
       await sleep(500)
-      assert.strictEqual(wrk._jobStates.get(key), true)
+      assert.strictEqual(wrk._jobStates.get(key).running, true)
       await sleep(600)
-      assert.strictEqual(wrk._jobStates.get(key), false)
+      assert.strictEqual(wrk._jobStates.get(key).running, false)
 
       assert.ok(job.calledOnce)
     }).timeout(3000)

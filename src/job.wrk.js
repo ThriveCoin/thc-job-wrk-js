@@ -3,6 +3,12 @@
 const fs = require('fs')
 const path = require('path')
 
+/**
+ * @typedef JobState
+ * @property {boolean} running
+ * @property {number} interval
+ */
+
 class JobWrk {
   /**
    * @param {Object} params
@@ -17,7 +23,7 @@ class JobWrk {
 
     /** @type {Map<string, NodeJS.Timeout>} */
     this._jobs = new Map()
-    /** @type {Map<string, boolean>} */
+    /** @type {Map<string, JobState>} */
     this._jobStates = new Map()
   }
 
@@ -59,18 +65,19 @@ class JobWrk {
   addJob (key, task, interval, immediate = false) {
     if (this._jobs.has(key)) return false
 
-    this._jobStates.set(key, false)
+    this._jobStates.set(key, { running: false, interval })
 
     const job = async () => {
-      if (this._jobStates.get(key)) return
-      this._jobStates.set(key, true)
+      const jobState = this._jobStates.get(key)
+      if (jobState?.running) return
+      jobState.running = true
 
       try {
         await task()
       } catch (err) {
         // do nothing
       } finally {
-        this._jobStates.set(key, false)
+        jobState.running = false
       }
     }
 

@@ -4,15 +4,19 @@ const schedule = require('node-schedule')
 
 const JobWrk = require('./job.wrk')
 
+/**
+ * @typedef CronJobState
+ * @property {boolean} running
+ * @property {string} interval
+ */
+
 class CronJobWrk extends JobWrk {
   start () {
     super.start()
 
     /** @type {Map<string, schedule.Job>} */
     this._cronJobs = new Map()
-    /** @type {Map<string, string>} */
-    this._cronJobItvs = new Map()
-    /** @type {Map<string, boolean>} */
+    /** @type {Map<string, CronJobState>} */
     this._cronJobStates = new Map()
   }
 
@@ -35,23 +39,23 @@ class CronJobWrk extends JobWrk {
   addCronJob (key, task, interval, immediate = false) {
     if (this._cronJobs.has(key)) return false
 
-    this._cronJobStates.set(key, false)
+    this._cronJobStates.set(key, { running: false, interval })
 
     const job = async () => {
-      if (this._cronJobStates.get(key)) return
-      this._cronJobStates.set(key, true)
+      const jobState = this._cronJobStates.get(key)
+      if (jobState?.running) return
+      jobState.running = true
 
       try {
         await task()
       } catch (err) {
         // do nothing
       } finally {
-        this._cronJobStates.set(key, false)
+        jobState.running = false
       }
     }
 
     this._cronJobs.set(key, schedule.scheduleJob(interval, job))
-    this._cronJobItvs.set(key, interval)
 
     if (immediate) this._cronJobs.get(key).invoke()
 
@@ -66,7 +70,6 @@ class CronJobWrk extends JobWrk {
 
     this._cronJobs.get(key).cancel(false)
     this._cronJobs.delete(key)
-    this._cronJobItvs.delete(key)
     this._cronJobStates.delete(key)
 
     return true

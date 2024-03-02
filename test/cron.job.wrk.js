@@ -31,7 +31,6 @@ describe('CronJobWrk tests', () => {
 
       assert.deepStrictEqual(wrk.state, {})
       assert.ok(typeof wrk._cronJobs, Map)
-      assert.ok(typeof wrk._cronJobItvs, Map)
       assert.ok(typeof wrk._cronJobStates, Map)
     })
   })
@@ -47,12 +46,16 @@ describe('CronJobWrk tests', () => {
       wrk.addJob('foo', job, 300)
       wrk.addCronJob('bar', job, '*/2 * * * * *')
 
+      assert.strictEqual(wrk._jobs.has('foo'), true)
+      assert.strictEqual(wrk._cronJobs.has('bar'), true)
+      assert.strictEqual(wrk._jobStates.has('foo'), true)
+      assert.strictEqual(wrk._cronJobStates.has('bar'), true)
+
       wrk.stop()
 
       assert.strictEqual(wrk._jobs.has('foo'), false)
       assert.strictEqual(wrk._cronJobs.has('bar'), false)
       assert.strictEqual(wrk._jobStates.has('foo'), false)
-      assert.strictEqual(wrk._cronJobItvs.has('bar'), false)
       assert.strictEqual(wrk._cronJobStates.has('bar'), false)
 
       const fileContent = fs.readFileSync(statePath, { encoding: 'utf-8' })
@@ -76,7 +79,6 @@ describe('CronJobWrk tests', () => {
       await sleep(4000)
 
       assert.strictEqual(wrk._cronJobs.has(key), true)
-      assert.strictEqual(wrk._cronJobItvs.has(key), true)
       assert.strictEqual(wrk._cronJobStates.has(key), true)
 
       assert.ok(res)
@@ -124,9 +126,9 @@ describe('CronJobWrk tests', () => {
       const job = sinon.stub().callsFake(() => sleep(2000))
       wrk.addCronJob(key, job, '* * * * * *')
 
-      assert.strictEqual(wrk._cronJobStates.get(key), false)
+      assert.strictEqual(wrk._cronJobStates.get(key).running, false)
       await sleep(1300)
-      assert.strictEqual(wrk._cronJobStates.get(key), true)
+      assert.strictEqual(wrk._cronJobStates.get(key).running, true)
       await sleep(2000)
 
       assert.ok(job.calledOnce)
