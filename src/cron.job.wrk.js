@@ -10,6 +10,8 @@ class CronJobWrk extends JobWrk {
 
     /** @type {Map<string, schedule.Job>} */
     this._cronJobs = new Map()
+    /** @type {Map<string, string>} */
+    this._cronJobItvs = new Map()
     /** @type {Map<string, boolean>} */
     this._cronJobStates = new Map()
   }
@@ -49,6 +51,7 @@ class CronJobWrk extends JobWrk {
     }
 
     this._cronJobs.set(key, schedule.scheduleJob(interval, job))
+    this._cronJobItvs.set(key, interval)
 
     if (immediate) this._cronJobs.get(key).invoke()
 
@@ -63,6 +66,7 @@ class CronJobWrk extends JobWrk {
 
     this._cronJobs.get(key).cancel(false)
     this._cronJobs.delete(key)
+    this._cronJobItvs.delete(key)
     this._cronJobStates.delete(key)
 
     return true
